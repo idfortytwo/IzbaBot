@@ -5,6 +5,7 @@ from discord.ext.commands.context import Context
 
 from db.connection import session_scope
 from db.models import OwnedBeer
+from utils import get_beer_word
 
 description = 'Bot dla Izby\nIn development'
 intents = discord.Intents.default()
@@ -25,7 +26,7 @@ async def t(ctx: Context):
 
 
 @bot.command(name='stawiam')
-async def owe_beer(ctx: Context, beer_to: str):
+async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
     beer_from_id = ctx.author.id
     beer_to_id = beer_to[3:-1]
 
@@ -34,15 +35,15 @@ async def owe_beer(ctx: Context, beer_to: str):
             .filter_by(beer_from_id=beer_from_id, beer_to_id=beer_to_id) \
             .first()
         if not owned_beer:
-            owned_beer = OwnedBeer(beer_from_id, beer_to_id, 1)
+            owned_beer = OwnedBeer(beer_from_id, beer_to_id, amount)
             session.add(owned_beer)
         else:
-            owned_beer.count += 1
-    await ctx.send(f'postawione')
+            owned_beer.count += amount
+    await ctx.send(f'postawione {amount} {get_beer_word(amount)}')
 
 
 @bot.command(name='wypite')
-async def drink_beer(ctx: Context, beer_from: str):
+async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
     beer_to_id = ctx.author.id
     beer_from_id = beer_from[3:-1]
 
@@ -52,8 +53,8 @@ async def drink_beer(ctx: Context, beer_from: str):
             .first()
 
         if owned_beer:
-            if owned_beer.count > 1:
-                owned_beer.count -= 1
+            if owned_beer.count > amount:
+                owned_beer.count -= amount
                 session.add(owned_beer)
                 await ctx.send(f'wypite, wisi ci jeszcze {owned_beer.count}')
             else:

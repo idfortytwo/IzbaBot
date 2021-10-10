@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import declarative_base
 
+from utils import get_beer_word
+
+
 Base = declarative_base()
 
 
@@ -17,14 +20,7 @@ class OwnedBeer(Base):
     count = Column(Integer, nullable=False)
 
     def __str__(self):
-        if self.count == 1:
-            beer_word = 'piwo'
-        elif self.count in [2, 3, 4]:
-            beer_word = 'piwa'
-        else:
-            beer_word = 'piw'
-
-        return f'{self.beer_from_id} stoi {self.beer_to_id} {self.count} {beer_word}'
+        return f'{self.beer_from_id} stoi {self.beer_to_id} {self.count} {get_beer_word(self.count)}'
 
     def __repr__(self):
         return f'OwnedBeer(beer_from_id={self.beer_from_id}, beer_to_id={self.beer_to_id}, count={self.count})'
