@@ -38,7 +38,6 @@ async def owe_beer(ctx: Context, beer_to: str):
             session.add(owned_beer)
         else:
             owned_beer.count += 1
-        print(owned_beer)
     await ctx.send(f'postawione')
 
 
@@ -56,14 +55,19 @@ async def drink_beer(ctx: Context, beer_from: str):
             if owned_beer.count > 1:
                 owned_beer.count -= 1
                 session.add(owned_beer)
+                await ctx.send(f'wypite, wisi ci jeszcze {owned_beer.count}')
             else:
                 session.delete(owned_beer)
-        print(owned_beer)
-    await ctx.send('wypite')
+                await ctx.send('wypite, już ci nic nie wisi')
+        else:
+            await ctx.send('i tak ci nie wisi')
 
 
 @bot.command(name='piwa')
 async def beers(ctx: Context):
     with session_scope() as session:
         beers: [OwnedBeer] = session.query(OwnedBeer).all()
-        await ctx.send('\n'.join(str(beer) for beer in beers))
+        if beers:
+            await ctx.send('\n'.join(str(beer) for beer in beers))
+        else:
+            await ctx.send('brak piw')
