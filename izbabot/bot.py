@@ -1,3 +1,4 @@
+import re
 import discord
 
 from discord.ext import commands
@@ -6,6 +7,7 @@ from discord.ext.commands.context import Context
 from db.connection import session_scope
 from db.models import OwnedBeer
 from utils import get_beer_word
+
 
 description = 'Bot dla Izby\nIn development'
 intents = discord.Intents.default()
@@ -28,7 +30,13 @@ async def t(ctx: Context):
 @bot.command(name='stawiam')
 async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
     beer_from_id = ctx.author.id
-    beer_to_id = beer_to[3:-1]
+
+    beer_to_search = re.search(r'<@!(\d+)>', beer_to)
+    if beer_to_search:
+        beer_to_id = beer_to_search.group(1)
+    else:
+        await ctx.send('zły format')
+        return
 
     with session_scope() as session:
         owned_beer: OwnedBeer = session.query(OwnedBeer) \
@@ -45,7 +53,13 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
 @bot.command(name='wypite')
 async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
     beer_to_id = ctx.author.id
-    beer_from_id = beer_from[3:-1]
+
+    beer_from_search = re.search(r'<@!(\d+)>', beer_from)
+    if beer_from_search:
+        beer_from_id = beer_from_search.group(1)
+    else:
+        await ctx.send('zły format')
+        return
 
     with session_scope() as session:
         owned_beer: OwnedBeer = session.query(OwnedBeer) \
