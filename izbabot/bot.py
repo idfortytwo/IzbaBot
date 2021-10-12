@@ -35,6 +35,7 @@ async def on_ready():
 
 @bot.command(name='refresh')
 async def refresh_nicknames(ctx: Context):
+    """Odświeżyć niknejmy"""
     update_nicknames()
     await ctx.send('odświeżone')
 
@@ -47,6 +48,7 @@ async def t(ctx: Context):
 
 @bot.command(name='stawiam')
 async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
+    """Postawić komuś piwo"""
     beer_from_id = ctx.author.id
 
     beer_to_search = re.search(r'<@!(\d+)>', beer_to)
@@ -70,6 +72,7 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
 
 @bot.command(name='wypite')
 async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
+    """Odebrać postawione piwo"""
     beer_to_id = ctx.author.id
 
     beer_from_search = re.search(r'<@!(\d+)>', beer_from)
@@ -98,6 +101,7 @@ async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
 
 @bot.command(name='piwa')
 async def beers(ctx: Context):
+    """Wyświetlić wszystkie postawione piwa"""
     with session_scope() as session:
         from_alias = aliased(Member)
         to_alias = aliased(Member)
