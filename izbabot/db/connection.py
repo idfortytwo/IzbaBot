@@ -25,4 +25,5 @@ def session_scope():
 
 
 if __name__ == '__main__':
+    engine = create_engine('sqlite:///db.sqlite', echo=False)
     Base.metadata.create_all(engine)
