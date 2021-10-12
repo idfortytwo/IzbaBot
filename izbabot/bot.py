@@ -33,6 +33,12 @@ async def on_ready():
     update_nicknames()
 
 
+@bot.command(name='refresh')
+async def refresh_nicknames(ctx: Context):
+    update_nicknames()
+    await ctx.send('odświeżone')
+
+
 @bot.command()
 async def t(ctx: Context):
     """Test command"""
