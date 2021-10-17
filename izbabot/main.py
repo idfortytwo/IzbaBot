@@ -2,12 +2,12 @@ import os
 from dotenv import load_dotenv
 
 from bot import bot
-from utils import setup_logger
+from logger import setup_app_logger
 
 
 def main():
-    logger = setup_logger('logger')
-    logger.debug('starting bot')
+    logger = setup_app_logger()
+    logger.info('starting bot')
 
     load_dotenv()
     bot_token = os.environ.get('bot_token')

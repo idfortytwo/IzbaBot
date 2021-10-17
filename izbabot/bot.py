@@ -9,6 +9,7 @@ from sqlalchemy.orm.session import Session
 
 from db.connection import session_scope
 from db.models import OwnedBeer, Member
+from utils import log_command
 from utils import get_beer_word
 
 
@@ -18,7 +19,7 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!', description=description, intents=intents)
 
-logger = logging.getLogger('logger')
+logger = logging.getLogger('app_logger')
 
 
 def update_nicknames():
@@ -32,7 +33,7 @@ def update_nicknames():
 
 @bot.event
 async def on_ready():
-    logger.info(f'{bot.user.name} logged in')
+    logger.info(f'{bot.user.name} logged in', extra={'sender': 'root'})
     update_nicknames()
 
 
@@ -44,12 +45,14 @@ async def refresh_nicknames(ctx: Context):
 
 
 @bot.command()
+@log_command
 async def t(ctx: Context):
     """Test command"""
     await ctx.send('test')
 
 
 @bot.command(name='stawiam')
+@log_command
 async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
     """Postawić komuś piwo"""
     beer_from_id = ctx.author.id
@@ -74,6 +77,7 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
 
 
 @bot.command(name='wypite')
+@log_command
 async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
     """Odebrać postawione piwo"""
     beer_to_id = ctx.author.id
@@ -103,6 +107,7 @@ async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
 
 
 @bot.command(name='piwa')
+@log_command
 async def beers(ctx: Context):
     """Wyświetlić wszystkie postawione piwa"""
     with session_scope() as session:

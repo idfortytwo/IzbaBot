@@ -1,23 +1,11 @@
-import logging
+import functools
+
+from discord.ext.commands import Context
+
+from logger import setup_command_logger
 
 
-def setup_logger(logger_name):
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter('%(asctime)s [%(levelname)8s]: %(message)s')
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    fh = logging.FileHandler('log.log')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    return logger
+command_logger = setup_command_logger()
 
 
 def get_beer_word(amount):
@@ -27,3 +15,22 @@ def get_beer_word(amount):
         return 'piwa'
     else:
         return 'piw'
+
+
+def pair_params(func_args, command_params):
+    params_it = iter(command_params)
+    next(params_it)
+    return ', '.join(f'{k}={v}' for k, v in zip(params_it, func_args))
+
+
+def log_command(f):
+    @functools.wraps(f)
+    async def wrapper(ctx: Context, *args, **kwargs):
+        sender = ctx.author
+        command = ctx.command.name
+        command_kwargs = pair_params(args, ctx.command.params)
+        command_logger.debug(f'{sender} called {command}({command_kwargs})')
+
+        return await f(ctx, *args, **kwargs)
+
+    return wrapper
