@@ -1,3 +1,4 @@
+import logging
 import re
 import discord
 
@@ -17,6 +18,8 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!', description=description, intents=intents)
 
+logger = logging.getLogger('logger')
+
 
 def update_nicknames():
     guild: discord.guild.Guild = bot.guilds[0]
@@ -29,7 +32,7 @@ def update_nicknames():
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name} logged in\n-----')
+    logger.info(f'{bot.user.name} logged in')
     update_nicknames()
 
 
