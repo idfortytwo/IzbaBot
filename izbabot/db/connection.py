@@ -1,13 +1,21 @@
-from contextlib import contextmanager
+import os
 
+from dotenv import load_dotenv
+from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base
 
 
-engine = create_engine('sqlite:///izbabot//db/db.sqlite', echo=False)
+load_dotenv()
+conn_url = os.environ.get('conn_url')
+engine = create_engine(conn_url, echo=False)
 Session = sessionmaker(bind=engine)
+
+
+def create_schema():
+    Base.metadata.create_all(engine)
 
 
 @contextmanager
