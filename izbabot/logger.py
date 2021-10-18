@@ -7,6 +7,11 @@ def setup_command_logger():
 
     formatter = logging.Formatter('%(asctime)s: %(msg)s')
 
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    command_logger.addHandler(ch)
+
     fh = logging.FileHandler('commands.log')
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
