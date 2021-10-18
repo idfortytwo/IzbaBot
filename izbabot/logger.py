@@ -12,11 +12,6 @@ def setup_command_logger():
     ch.setFormatter(formatter)
     command_logger.addHandler(ch)
 
-    fh = logging.FileHandler('commands.log')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    command_logger.addHandler(fh)
-
     return command_logger
 
 
@@ -30,10 +25,5 @@ def setup_app_logger():
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     app_logger.addHandler(ch)
-
-    fh = logging.FileHandler('log.log')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    app_logger.addHandler(fh)
 
     return app_logger
