@@ -17,10 +17,9 @@ def main():
 
     @app.route('/')
     def hello():
-        return 'Hello World!'
+        return 'up and running'
 
     port = os.environ.get('PORT', 5000)
-    logger.info(f'{port=}')
     bot.loop.create_task(app.run_task(host='0.0.0.0', port=port))
 
     load_dotenv()
