@@ -19,7 +19,9 @@ def main():
     def hello():
         return 'Hello World!'
 
-    bot.loop.create_task(app.run_task())
+    port = os.environ.get('PORT', 5000)
+    logger.info(f'{port=}')
+    bot.loop.create_task(app.run_task(host='0.0.0.0', port=port))
 
     load_dotenv()
     bot_token = os.environ.get('bot_token')
