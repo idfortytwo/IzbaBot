@@ -8,7 +8,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
 from db.connection import session_scope
-from db.models import OwnedBeer, Member
+from db.models import OwedBeer, Member
 from utils import log_command
 from utils import get_beer_word
 
@@ -65,14 +65,14 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
         return
 
     with session_scope() as session:
-        owned_beer: OwnedBeer = session.query(OwnedBeer) \
+        owed_beer: OwedBeer = session.query(OwedBeer) \
             .filter_by(beer_from_id=beer_from_id, beer_to_id=beer_to_id) \
             .first()
-        if not owned_beer:
-            owned_beer = OwnedBeer(beer_from_id, beer_to_id, amount)
-            session.add(owned_beer)
+        if not owed_beer:
+            owed_beer = OwedBeer(beer_from_id, beer_to_id, amount)
+            session.add(owed_beer)
         else:
-            owned_beer.count += amount
+            owed_beer.count += amount
     await ctx.send(f'postawione {amount} {get_beer_word(amount)}')
 
 
@@ -90,17 +90,17 @@ async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
         return
 
     with session_scope() as session:
-        owned_beer: OwnedBeer = session.query(OwnedBeer) \
+        owed_beer: OwedBeer = session.query(OwedBeer) \
             .filter_by(beer_from_id=beer_from_id, beer_to_id=beer_to_id) \
             .first()
 
-        if owned_beer:
-            if owned_beer.count > amount:
-                owned_beer.count -= amount
-                session.add(owned_beer)
-                await ctx.send(f'wypite, wisi ci jeszcze {owned_beer.count}')
+        if owed_beer:
+            if owed_beer.count > amount:
+                owed_beer.count -= amount
+                session.add(owed_beer)
+                await ctx.send(f'wypite, wisi ci jeszcze {owed_beer.count}')
             else:
-                session.delete(owned_beer)
+                session.delete(owed_beer)
                 await ctx.send('wypite, już ci nic nie wisi')
         else:
             await ctx.send('i tak ci nie wisi')
@@ -114,9 +114,9 @@ async def beers(ctx: Context):
         from_alias = aliased(Member)
         to_alias = aliased(Member)
 
-        beers = session.query(from_alias.name, to_alias.name, OwnedBeer.count).\
-            join(from_alias, OwnedBeer.beer_from_id == from_alias.member_id).\
-            join(to_alias, OwnedBeer.beer_to_id == to_alias.member_id).\
+        beers = session.query(from_alias.name, to_alias.name, OwedBeer.count).\
+            join(from_alias, OwedBeer.beer_from_id == from_alias.member_id).\
+            join(to_alias, OwedBeer.beer_to_id == to_alias.member_id).\
             all()
 
         if beers:

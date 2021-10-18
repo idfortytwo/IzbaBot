@@ -21,8 +21,8 @@ class Member(Base):
         return f'Member(member_id={self.member_id}, name={self.name})'
 
 
-class OwnedBeer(Base):
-    __tablename__ = 'owned_beers'
+class OwedBeer(Base):
+    __tablename__ = 'owed_beers'
 
     def __init__(self, beer_from_id, beer_to_id, count):
         self.beer_from_id = int(beer_from_id)
@@ -37,4 +37,4 @@ class OwnedBeer(Base):
         return f'{self.beer_from_id} stoi {self.beer_to_id} {self.count} {get_beer_word(self.count)}'
 
     def __repr__(self):
-        return f'OwnedBeer(beer_from_id={self.beer_from_id}, beer_to_id={self.beer_to_id}, count={self.count})'
+        return f'OwedBeer(beer_from_id={self.beer_from_id}, beer_to_id={self.beer_to_id}, count={self.count})'
