@@ -1,4 +1,5 @@
 discord
 python-dotenv
 SQLAlchemy
+quart
 psycopg2
