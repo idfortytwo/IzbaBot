@@ -1,1 +1,1 @@
-web: python izbabot/main.py
+worker: python izbabot/main.py
