@@ -4,6 +4,7 @@ import discord
 
 from discord.ext import commands
 from discord.ext.commands.context import Context
+from psycopg2 import DataError
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
@@ -72,7 +73,10 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
             owed_beer = OwedBeer(beer_from_id, beer_to_id, amount)
             session.add(owed_beer)
         else:
-            owed_beer.count += amount
+            try:
+                owed_beer.count += amount
+            except DataError:
+                return await ctx.send(f'nie wypije tyle')
     await ctx.send(f'postawione {amount} {get_beer_word(amount)}')
 
 
