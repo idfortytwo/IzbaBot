@@ -1,4 +1,5 @@
 import functools
+import re
 
 from discord.ext.commands import Context
 
@@ -15,6 +16,12 @@ def get_beer_word(amount):
         return 'piwa'
     else:
         return 'piw'
+
+
+def extract_user_id(id_str: str) -> int:
+    if (id_match := re.search(r'<@!(\d+)>', id_str)) or (id_match := re.search(r'<@(\d+)>', id_str)):
+        return int(id_match.group(1))
+    raise ValueError('Bad ID format')
 
 
 def pair_params(func_args, command_params):

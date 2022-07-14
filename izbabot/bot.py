@@ -1,5 +1,4 @@
 import logging
-import re
 import discord
 import sqlalchemy
 
@@ -10,8 +9,9 @@ from sqlalchemy.orm import aliased
 
 from db.connection import session_scope
 from db.models import OwedBeer, Member
-from utils import log_command
+from utils import log_command, extract_user_id
 from utils import get_beer_word
+
 
 description = 'Bot dla Izby\nIn development'
 intents = discord.Intents.default()
@@ -43,22 +43,15 @@ async def refresh_nicknames(ctx: Context):
     await ctx.send('odświeżone')
 
 
-@bot.command()
-@log_command
-async def t(ctx: Context):
-    """Test command"""
-    await ctx.send('test')
-
-
 @bot.command(name='stawiam')
 @log_command
 async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
     """Postawić komuś piwo"""
     beer_from_id = ctx.author.id
 
-    if (beer_to_search := re.search(r'<@!(\d+)>', beer_to)) or (beer_to_search := re.search(r'<@(\d+)>', beer_to)):
-        beer_to_id = int(beer_to_search.group(1))
-    else:
+    try:
+        beer_to_id = extract_user_id(beer_to)
+    except ValueError:
         await ctx.send('zły format')
         return
 
@@ -68,8 +61,6 @@ async def owe_beer(ctx: Context, beer_to: str, amount: int = 1):
                 select(OwedBeer).
                 filter_by(beer_from_id=beer_from_id, beer_to_id=beer_to_id)
             )).first()[0]
-
-            print(owed_beer)
 
             if not owed_beer:
                 owed_beer = OwedBeer(beer_from_id, beer_to_id, amount)
@@ -88,10 +79,9 @@ async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
     """Odebrać postawione piwo"""
     beer_to_id = ctx.author.id
 
-    if (beer_from_search := re.search(r'<@!(\d+)>', beer_from)) or \
-       (beer_from_search := re.search(r'<@(\d+)>', beer_from)):
-        beer_from_id = int(beer_from_search.group(1))
-    else:
+    try:
+        beer_from_id = extract_user_id(beer_from)
+    except ValueError:
         await ctx.send('zły format')
         return
 
@@ -118,7 +108,6 @@ async def drink_beer(ctx: Context, beer_from: str, amount: int = 1):
 async def list_beers(ctx: Context):
     """Wyświetlić wszystkie postawione piwa"""
     async with session_scope() as session:
-        print(session)
         from_alias = aliased(Member)
         to_alias = aliased(Member)
 
