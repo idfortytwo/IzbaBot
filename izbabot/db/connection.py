@@ -1,37 +1,34 @@
 import os
 
+from typing import ContextManager
 from dotenv import load_dotenv
-from contextlib import contextmanager
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from contextlib import asynccontextmanager
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Base
 
 
 load_dotenv()
 conn_url = os.environ.get('conn_url')
-engine = create_engine(conn_url, echo=False)
-Session = sessionmaker(bind=engine)
+engine = create_async_engine(conn_url, echo=False)
+Session = AsyncSession(bind=engine)
 
 
-def create_schema():
-    Base.metadata.create_all(engine)
+async def create_schema():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-@contextmanager
-def session_scope():
+@asynccontextmanager
+async def session_scope() -> ContextManager[AsyncSession]:
     """Provide a transactional scope around a series of operations."""
-    session = Session()
+    session = AsyncSession(bind=engine)
     try:
         yield session
-        session.commit()
+        await session.commit()
     except:
-        session.rollback()
+        await session.rollback()
         raise
     finally:
-        session.close()
-
-
-if __name__ == '__main__':
-    engine = create_engine('sqlite:///db.sqlite', echo=False)
-    Base.metadata.create_all(engine)
+        await session.close()

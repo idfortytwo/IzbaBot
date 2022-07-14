@@ -1,4 +1,6 @@
 import os
+import asyncio
+
 from dotenv import load_dotenv
 
 from bot import bot
@@ -11,7 +13,9 @@ def main():
     logger = setup_app_logger()
     logger.info('starting bot')
 
-    create_schema()
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(create_schema())
+    loop.run_until_complete(task)
 
     app = Quart(__name__)
 
